@@ -21,20 +21,11 @@ functions:
       - http:
           path: /
           method: get
+          cors: true
           authorizer:
             type: COGNITO_USER_POOLS
             authorizerId:
               Ref: ApiGatewayAuthorizer
-          cors:
-            origin: "https://example.com"
-            headers:
-              - Content-Type
-              - X-Amz-Date
-              - Authorization
-              - X-Api-Key
-              - X-Amz-Security-Token
-              - X-Amz-User-Agent
-            allowCredentials: true
 
 resources:
   Resources:
@@ -56,7 +47,7 @@ resources:
       Type: "AWS::Cognito::UserPoolClient"
       Properties:
         ClientName: my-user-pool-client
-        GenerateSecret: true
+        GenerateSecret: false
         UserPoolId:
           Ref: CognitoUserPool
     ApiGatewayAuthorizer:
