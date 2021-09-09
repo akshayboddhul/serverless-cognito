@@ -24,8 +24,7 @@ functions:
           cors: true
           authorizer:
             type: COGNITO_USER_POOLS
-            authorizerId:
-              Ref: ApiGatewayAuthorizer
+            authorizerId: !Ref ApiGatewayAuthorizer
 
 resources:
   Resources:
@@ -36,9 +35,13 @@ resources:
         UserPoolName: my-user-pool
         UsernameAttributes:
           - email
+        AutoVerifiedAttributes:
+          - email
+        UsernameConfiguration:
+          CaseSensitive: True
         Policies:
           PasswordPolicy:
-            MinimumLength: 6
+            MinimumLength: 7
             RequireLowercase: false
             RequireNumbers: true
             RequireSymbols: false
@@ -48,8 +51,28 @@ resources:
       Properties:
         ClientName: my-user-pool-client
         GenerateSecret: false
-        UserPoolId:
-          Ref: CognitoUserPool
+        UserPoolId: !Ref CognitoUserPool
+        AllowedOAuthScopes:
+          - email
+          - phone
+          - openid
+          - profile
+          - aws.cognito.signin.user.admin
+        PreventUserExistenceErrors: ENABLED
+        AllowedOAuthFlowsUserPoolClient: true
+        CallbackURLs:
+          - https://example.com/callback
+        LogoutURLs:
+          - https://example.com/signout
+        AllowedOAuthFlows:
+          - implicit
+        SupportedIdentityProviders:
+          - COGNITO
+    CognitoUserPoolDomain:
+      Type: "AWS::Cognito::UserPoolDomain"
+      Properties:
+        Domain: cogniserverless
+        UserPoolId: !Ref CognitoUserPool
     ApiGatewayAuthorizer:
       DependsOn:
         - ApiGatewayRestApi
@@ -57,8 +80,7 @@ resources:
       Properties:
         Name: cognito-authorizer
         IdentitySource: method.request.header.Authorization
-        RestApiId:
-          Ref: ApiGatewayRestApi
+        RestApiId: !Ref ApiGatewayRestApi
         Type: COGNITO_USER_POOLS
         ProviderARNs:
           - Fn::GetAtt: [CognitoUserPool, Arn]
