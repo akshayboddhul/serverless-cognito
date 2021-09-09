@@ -35,10 +35,12 @@ resources:
         UserPoolName: my-user-pool
         UsernameAttributes:
           - email
+        Schema:
+          - Mutable: false
+            Name: email
+            Required: true
         AutoVerifiedAttributes:
           - email
-        UsernameConfiguration:
-          CaseSensitive: True
         Policies:
           PasswordPolicy:
             MinimumLength: 7
